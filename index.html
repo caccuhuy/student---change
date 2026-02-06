@@ -3,33 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Sinh viên - GitHub Pages</title>
-    <style>
-        :root { --primary: #4a90e2; --success: #27ae60; --warning: #f39c12; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; margin-bottom: 30px; }
-        
-        /* Form styling */
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 5px rgba(74,144,226,0.3); }
-        
-        .btn-group { display: flex; gap: 10px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; color: white; }
-        .btn-add { background: var(--primary); }
-        .btn-add:hover { background: #357abd; }
-        .btn-clear { background: #95a5a6; }
-
-        /* Table styling */
-        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-        th { background: #f8f9fa; color: #555; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; }
-        th, td { padding: 15px; border-bottom: 1px solid #eee; text-align: left; }
-        tr:hover { background: #fcfcfc; }
-        .btn-edit { background: var(--warning); padding: 6px 12px; font-size: 0.8rem; }
-        
-        .empty-msg { text-align: center; color: #999; padding: 20px; }
-    </style>
+    <title>Quản lý Sinh viên</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -37,11 +12,11 @@
     <h2>🎓 Hệ Thống Quản Lý Sinh Viên</h2>
 
     <div class="input-grid">
-        <input type="text" id="maSV" placeholder="Mã Sinh viên (VD: B21DCCN001)">
+        <input type="text" id="maSV" placeholder="Mã Sinh viên">
         <input type="text" id="hoTen" placeholder="Họ và Tên">
         <input type="date" id="ngaySinh">
-        <input type="text" id="lopHoc" placeholder="Lớp (VD: D21CQCN01)">
-        <input type="number" id="gpa" step="0.1" min="0" max="4" placeholder="Điểm GPA (0 - 4.0)">
+        <input type="text" id="lopHoc" placeholder="Lớp">
+        <input type="number" id="gpa" step="0.1" min="0" max="4" placeholder="Điểm GPA">
     </div>
     
     <div class="btn-group">
@@ -60,115 +35,11 @@
                 <th>Thao tác</th>
             </tr>
         </thead>
-        <tbody id="studentTableBody">
-            </tbody>
+        <tbody id="studentTableBody"></tbody>
     </table>
     <div id="noData" class="empty-msg">Chưa có dữ liệu sinh viên.</div>
 </div>
 
-<script>
-    // 1. Lớp Sinh Viên (OOP)
-    class Student {
-        constructor(maSV, hoTen, ngaySinh, lopHoc, gpa) {
-            this.maSV = maSV;
-            this.hoTen = hoTen;
-            this.ngaySinh = ngaySinh;
-            this.lopHoc = lopHoc;
-            this.gpa = parseFloat(gpa).toFixed(2);
-        }
-
-        // Phương thức cập nhật thông tin đúng yêu cầu đề bài
-        updateInfo(maSV, hoTen, ngaySinh, lopHoc, gpa) {
-            this.maSV = maSV;
-            this.hoTen = hoTen;
-            this.ngaySinh = ngaySinh;
-            this.lopHoc = lopHoc;
-            this.gpa = parseFloat(gpa).toFixed(2);
-        }
-    }
-
-    // Quản lý danh sách sinh viên
-    let studentList = [];
-    let editingIndex = -1; // -1 nghĩa là đang ở chế độ thêm mới
-
-    // 2. Hàm xử lý Lưu (Thêm/Sửa)
-    function handleSave() {
-        const maSV = document.getElementById('maSV').value.trim();
-        const hoTen = document.getElementById('hoTen').value.trim();
-        const ngaySinh = document.getElementById('ngaySinh').value;
-        const lopHoc = document.getElementById('lopHoc').value.trim();
-        const gpa = document.getElementById('gpa').value;
-
-        if (!maSV || !hoTen || !ngaySinh || !lopHoc || !gpa) {
-            alert("Vui lòng nhập đầy đủ tất cả các trường!");
-            return;
-        }
-
-        if (editingIndex === -1) {
-            // Chế độ Thêm mới
-            const newStudent = new Student(maSV, hoTen, ngaySinh, lopHoc, gpa);
-            studentList.push(newStudent);
-        } else {
-            // Chế độ Cập nhật (Sử dụng phương thức của đối tượng)
-            studentList[editingIndex].updateInfo(maSV, hoTen, ngaySinh, lopHoc, gpa);
-            editingIndex = -1;
-            document.getElementById('mainBtn').innerText = "Thêm Sinh Viên Mới";
-            document.getElementById('mainBtn').style.background = "#4a90e2";
-        }
-
-        resetForm();
-        renderTable();
-    }
-
-    // 3. Hàm hiển thị dữ liệu
-    function renderTable() {
-        const tbody = document.getElementById('studentTableBody');
-        const noData = document.getElementById('noData');
-        tbody.innerHTML = "";
-
-        if (studentList.length === 0) {
-            noData.style.display = "block";
-            return;
-        }
-        noData.style.display = "none";
-
-        studentList.forEach((st, index) => {
-            const row = `<tr>
-                <td><b>${st.maSV}</b></td>
-                <td>${st.hoTen}</td>
-                <td>${st.ngaySinh}</td>
-                <td>${st.lopHoc}</td>
-                <td>${st.gpa}</td>
-                <td>
-                    <button class="btn-edit" onclick="prepareEdit(${index})">Sửa</button>
-                </td>
-            </tr>`;
-            tbody.innerHTML += row;
-        });
-    }
-
-    // 4. Hàm chuẩn bị dữ liệu để sửa
-    function prepareEdit(index) {
-        const st = studentList[index];
-        document.getElementById('maSV').value = st.maSV;
-        document.getElementById('hoTen').value = st.hoTen;
-        document.getElementById('ngaySinh').value = st.ngaySinh;
-        document.getElementById('lopHoc').value = st.lopHoc;
-        document.getElementById('gpa').value = st.gpa;
-
-        editingIndex = index;
-        const btn = document.getElementById('mainBtn');
-        btn.innerText = "Xác nhận Cập nhật";
-        btn.style.background = "#f39c12";
-    }
-
-    function resetForm() {
-        document.querySelectorAll('input').forEach(i => i.value = "");
-        editingIndex = -1;
-        document.getElementById('mainBtn').innerText = "Thêm Sinh Viên Mới";
-        document.getElementById('mainBtn').style.background = "#4a90e2";
-    }
-</script>
-
+<script src="main.js"></script>
 </body>
 </html>
