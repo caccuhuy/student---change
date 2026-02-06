@@ -31,6 +31,11 @@ function handleSave() {
         return;
     }
 
+    if (gpa < 0 || gpa > 4){
+        alert("Vui lòng nhập đúng điểm cho phép");
+        return;
+    }
+
     if (editingIndex === -1) {
         const newStudent = new Student(maSV, hoTen, ngaySinh, lopHoc, gpa);
         studentList.push(newStudent);
@@ -61,7 +66,10 @@ function renderTable() {
             <td>${st.ngaySinh}</td>
             <td>${st.lopHoc}</td>
             <td>${st.gpa}</td>
-            <td><button class="btn-edit" onclick="prepareEdit(${index})">Sửa</button></td>
+            <td>
+            <button class="btn-edit" onclick="prepareEdit(${index})">Sửa</button>
+            <button class="btn-delete" onclick="deleteStudent(${index})">Xóa</button>
+            </td>
         </tr>`;
     });
 }
@@ -78,6 +86,19 @@ function prepareEdit(index) {
     const btn = document.getElementById('mainBtn');
     btn.innerText = "Xác nhận Cập nhật";
     btn.style.background = "#f39c12";
+}
+
+function deleteStudent(index) {
+    if (confirm(`Bạn có chắc chắn muốn xóa sinh viên: ${studentList[index].hoTen} không?`)) {
+        studentList.splice(index, 1);
+        
+        if (editingIndex === index) {
+            resetForm();
+        } else if (editingIndex > index) {
+            editingIndex--;
+        }
+        renderTable();
+    }
 }
 
 function resetForm() {
